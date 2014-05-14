@@ -186,20 +186,16 @@ names(meanStepsDat)[2] = "mean1"
 names(meanStepsDat2)[2] = "mean2"
 
 mergedMeanStepsDat <- merge(meanStepsDat, meanStepsDat2, all = TRUE)
-mergedMeanStepsDat$meanDiff <- mergedMeanStepsDat$mean2 - mergedMeanStepsDat$mean1
 
-m <- ggplot(mergedMeanStepsDat, aes(date), na.rm = TRUE) + labs(title = "Mean of Total Steps/Day", 
-    x = "Date", y = "Mean (NA values)") + geom_line(aes(y = mean1), colour = "blue")
+m <- ggplot(mergedMeanStepsDat, aes(x = mean1), na.rm = TRUE) + labs(title = "Frequency Mean of Total Steps/Day", 
+    x = "Mean Step/Day (without NA values)", y = "Frequency") + geom_histogram(binwidth = 1, 
+    colour = "blue", fill = "blue")
 
-m2 <- ggplot(mergedMeanStepsDat, aes(date), na.rm = TRUE) + labs(title = "Mean of Total Steps/Day", 
-    x = "Date", y = "Mean (NA values as Average)") + geom_line(aes(y = mean2), 
-    colour = "blue")
+m2 <- ggplot(mergedMeanStepsDat, aes(mean2), na.rm = TRUE) + labs(title = "Frequency Mean of Total Steps/Day", 
+    x = "Mean Step/Day (replaced NA values with average)", y = "Frequency") + 
+    geom_histogram(binwidth = 1, colour = "blue", fill = "blue")
 
 grid.arrange(m, m2, ncol = 1)
-```
-
-```
-## Warning: Removed 2 rows containing missing values (geom_path).
 ```
 
 ![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-61.png) 
@@ -210,20 +206,16 @@ names(medianStepsDat)[2] = "median1"
 names(medianStepsDat2)[2] = "median2"
 
 mergedMedianStepsDat <- merge(medianStepsDat, medianStepsDat2, all = TRUE)
-mergedMedianStepsDat$medianDiff <- mergedMedianStepsDat$median2 - mergedMedianStepsDat$median1
 
-m <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + labs(title = "Median of Total Steps/Day", 
-    x = "Date", y = "Median (NA values)") + geom_line(aes(y = median1), colour = "blue")
+m <- ggplot(mergedMedianStepsDat, aes(x = median1), na.rm = TRUE) + labs(title = "Frequency Median of Total Steps/Day", 
+    x = "Median Step/Day (without NA values)", y = "Frequency") + geom_histogram(binwidth = 1, 
+    colour = "blue", fill = "blue")
 
-m2 <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + labs(title = "Median of Total Steps/Day", 
-    x = "Date", y = "Median (NA values as Average)") + geom_line(aes(y = median2), 
-    colour = "blue")
+m2 <- ggplot(mergedMedianStepsDat, aes(x = median2), na.rm = TRUE) + labs(title = "Frequency Median of Total Steps/Day", 
+    x = "Median Step/Day (replaced NA values with average)", y = "Frequency") + 
+    geom_histogram(binwidth = 1, colour = "blue", fill = "blue")
 
 grid.arrange(m, m2, ncol = 1)
-```
-
-```
-## Warning: Removed 2 rows containing missing values (geom_path).
 ```
 
 ![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-62.png) 
