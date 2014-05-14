@@ -35,8 +35,7 @@ m
 meanStepsDat <- aggregate(steps ~ date, completeDat, mean)
 meanStepsDat$date <- as.Date(meanStepsDat$date)
 m <- ggplot(meanStepsDat, aes(date, steps)) + labs(title = "Mean of Total Steps taken per day", 
-    x = "Total Steps", y = "Mean") + geom_bar(colour = "blue", fill = "blue", 
-    width = 0.7, stat = "identity")
+    x = "Total Steps", y = "Mean") + geom_line(colour = "blue")
 m
 ```
 
@@ -47,8 +46,7 @@ m
 medianStepsDat <- aggregate(steps ~ date, completeDat, median)
 medianStepsDat$date <- as.Date(medianStepsDat$date)
 m <- ggplot(medianStepsDat, aes(date, steps)) + labs(title = "Median of Total Steps taken per day", 
-    x = "Total Steps", y = "Median") + geom_bar(colour = "blue", fill = "blue", 
-    width = 0.7, stat = "identity")
+    x = "Total Steps", y = "Median") + geom_line(colour = "blue")
 m
 ```
 
