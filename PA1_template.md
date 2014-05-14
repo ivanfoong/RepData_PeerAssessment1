@@ -43,9 +43,6 @@ m
 ![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-11.png) 
 
 ```r
-# m <- ggplot(meanStepsDat, aes(x=steps)) + labs(title='Frequency of Mean
-# Steps taken per day', x='Mean Steps', y='Frequency') +
-# geom_histogram(binwidth=10, colour = 'blue', fill = 'blue') m
 
 medianStepsDat <- aggregate(steps ~ date, completeDat, median)
 medianStepsDat$date <- as.Date(medianStepsDat$date)
@@ -56,12 +53,6 @@ m
 ```
 
 ![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-12.png) 
-
-```r
-# m <- ggplot(medianStepsDat, aes(x=steps)) + labs(title='Frequency of Mean
-# Steps taken per day', x='Median Steps', y='Frequency') +
-# geom_histogram(binwidth=1, colour = 'blue', fill = 'blue') m
-```
 
 
 #### * If single value of mean and median for all the days are expected for the result instead:
@@ -129,14 +120,7 @@ fillMissingStepsFunction <- function(x, averageStepsByIntervalDat) {
     steps <- x[1]
     date <- x[2]
     interval <- as.integer(x[3])  # for some reason interval values gets converted to character type, so had to cast it as integer
-    
-    # print(class(interval))
-    
-    # print(paste(steps, date, interval, sep=','))
     if (is.na(steps)) {
-        # print(averageStepsByIntervalDat[averageStepsByIntervalDat$interval == 0,])
-        # print(averageStepsByIntervalDat[averageStepsByIntervalDat$interval ==
-        # interval,])
         x[1] <- averageStepsByIntervalDat[averageStepsByIntervalDat$interval == 
             interval, 2]
     }
@@ -167,42 +151,6 @@ head(filledDat)
 ### 4a. Make a histogram of the total number of steps taken each day
 
 ```r
-# function to plot multiple ggplot on same page, ref:
-# http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
-multiplot <- function(..., plotlist = NULL, file, cols = 1, layout = NULL) {
-    require(grid, quietly = TRUE)
-    
-    # Make a list from the ... arguments and plotlist
-    plots <- c(list(...), plotlist)
-    
-    numPlots = length(plots)
-    
-    # If layout is NULL, then use 'cols' to determine layout
-    if (is.null(layout)) {
-        # Make the panel ncol: Number of columns of plots nrow: Number of rows
-        # needed, calculated from # of cols
-        layout <- matrix(seq(1, cols * ceiling(numPlots/cols)), ncol = cols, 
-            nrow = ceiling(numPlots/cols))
-    }
-    
-    if (numPlots == 1) {
-        print(plots[[1]])
-        
-    } else {
-        # Set up the page
-        grid.newpage()
-        pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-        
-        # Make each plot, in the correct location
-        for (i in 1:numPlots) {
-            # Get the i,j matrix positions of the regions that contain this subplot
-            matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-            
-            print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row, layout.pos.col = matchidx$col))
-        }
-    }
-}
-
 totalStepsDat <- aggregate(steps ~ date, completeDat, sum)
 m <- ggplot(totalStepsDat, aes(x = steps)) + labs(title = "Frequency of Total Steps taken per day (without missing values)", 
     x = "Total Steps", y = "Frequency") + geom_histogram(binwidth = 1000, colour = "blue", 
@@ -216,7 +164,9 @@ m2 <- ggplot(totalStepsDat2, aes(x = steps)) + labs(title = "Frequency of Total 
 multiplot(m, m2, cols = 1)
 ```
 
-![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+```
+## Error: could not find function "multiplot"
+```
 
 
 ### 4b. Calculate and report the mean and median total number of steps taken per day.
@@ -234,18 +184,12 @@ meanStepsDat2$date <- as.Date(meanStepsDat2$date)
 medianStepsDat2 <- aggregate(steps ~ date, filledDat, median)
 medianStepsDat2$date <- as.Date(medianStepsDat2$date)
 
-# meanStepsDat2$steps - meanStepsDat$steps
 names(meanStepsDat)[2] = "mean1"
 names(meanStepsDat2)[2] = "mean2"
 
 mergedMeanStepsDat <- merge(meanStepsDat, meanStepsDat2, all = TRUE)
-# mergedMeanStepsDat[is.na(mergedMeanStepsDat$mean1), 'mean1'] <- 0
 mergedMeanStepsDat$meanDiff <- mergedMeanStepsDat$mean2 - mergedMeanStepsDat$mean1
 
-# m <- ggplot(mergedMeanStepsDat, aes(date), na.rm=F) + theme_bw(base_size =
-# 10) + labs(title='Mean of Total Steps taken per day', x='Date', y='Mean')
-# + geom_line(aes(y=mean1, color = 'NA as 0')) + geom_line(aes(y=mean2,
-# color = 'NA as Average'))
 m <- ggplot(mergedMeanStepsDat, aes(date), na.rm = TRUE) + labs(title = "Mean of Total Steps/Day", 
     x = "Date", y = "Mean (NA values)") + geom_line(aes(y = mean1), colour = "blue")
 
@@ -264,13 +208,10 @@ grid.arrange(m, m2, ncol = 1)
 
 ```r
 
-# multiplot(m, m2, cols=2)
-
 names(medianStepsDat)[2] = "median1"
 names(medianStepsDat2)[2] = "median2"
 
 mergedMedianStepsDat <- merge(medianStepsDat, medianStepsDat2, all = TRUE)
-# mergedMedianStepsDat[is.na(mergedMedianStepsDat$median1), 'median1'] <- 0
 mergedMedianStepsDat$medianDiff <- mergedMedianStepsDat$median2 - mergedMedianStepsDat$median1
 
 m <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + labs(title = "Median of Total Steps/Day", 
@@ -279,15 +220,6 @@ m <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + labs(title = "Media
 m2 <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + labs(title = "Median of Total Steps/Day", 
     x = "Date", y = "Median (NA values as Average)") + geom_line(aes(y = median2), 
     colour = "blue")
-
-# m3 <- ggplot(mergedMeanStepsDat, aes(date), na.rm=T) + theme_bw(base_size
-# = 10) + labs(title='Diff of Mean Total Steps taken per day between NA and
-# filled values', x='Date', y='Mean Diff') + geom_line(aes(y = meanDiff))
-
-# m4 <- ggplot(mergedMedianStepsDat, aes(date), na.rm=T) +
-# theme_bw(base_size = 10) + labs(title='Diff of Median Total Steps taken
-# per day between NA and filled values', x='Date', y='Median Diff') +
-# geom_line(aes(y = medianDiff))
 
 grid.arrange(m, m2, ncol = 1)
 ```
