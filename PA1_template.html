@@ -372,7 +372,10 @@ grid.arrange(m, m2, ncol = 1)
 
 <h3>4c. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?</h3>
 
-<p>There is impact on both mean and median results. It has minor impact on mean results as it fills in the average of all available days for days that only NA values are available, which potentially allows those days to be included in other calculations, but it greatly affects the median results as it&#39;s fills with average value for a particular day, which median value will be calculated from the average value, instead of including multiple 0, similar to other steps/days as provided by the original dataset. (Median for non-NA days are typically 0 due to multiple 0 steps entries, whereas NA days&#39;s steps are filled using the average which is not 0 and typically &gt; 30 steps per day)</p>
+<p>There is impact on both mean and median results. It has minor impact on mean results as it fills in the average of all available days for days that only NA values are available, which potentially allows those days to be included in other calculations.</p>
+
+<p>But it greatly affects the median results as it&#39;s fills with average value for a particular day, which median value will be calculated from the average value, instead of including multiple 0, similar to other steps/days as provided by the original dataset.
+(Median for non-NA days are typically 0 due to multiple 0 steps entries, whereas NA days&#39;s steps are filled using the average which is not 0 and typically &gt; 30 steps per day)</p>
 
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>
 
