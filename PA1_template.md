@@ -5,39 +5,42 @@
 
 ```r
 library(ggplot2)
+library(gridExtra, quietly = TRUE)
 dat <- read.csv("activity.csv")
 completeDat <- dat[complete.cases(dat), ]
+
+theme_set(theme_bw(base_size = 10))
 ```
 
 
 
 ## What is mean total number of steps taken per day?
 
+### 1. Make a histogram of the total number of steps taken each day
 
 ```r
-### Make a histogram of the total number of steps taken each day
 totalStepsDat <- aggregate(steps ~ date, completeDat, sum)
-m <- ggplot(totalStepsDat, aes(x = steps)) + theme_bw(base_size = 10) + labs(title = "Frequency of Total Steps taken per day", 
+m <- ggplot(totalStepsDat, aes(x = steps)) + labs(title = "Frequency of Total Steps taken per day", 
     x = "Total Steps", y = "Frequency") + geom_histogram(binwidth = 1000, colour = "blue", 
     fill = "blue")
 m
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-11.png) 
+![plot of chunk totalSteps setcache](figure/totalSteps_setcache.png) 
+
+
+### 2. Calculate the mean and median for total number of steps taken per day
 
 ```r
-
-### Calculate the mean and median for total number of steps taken per day
-
 meanStepsDat <- aggregate(steps ~ date, completeDat, mean)
 meanStepsDat$date <- as.Date(meanStepsDat$date)
-m <- ggplot(meanStepsDat, aes(date, steps)) + theme_bw(base_size = 10) + labs(title = "Mean of Total Steps taken per day", 
+m <- ggplot(meanStepsDat, aes(date, steps)) + labs(title = "Mean of Total Steps taken per day", 
     x = "Total Steps", y = "Mean") + geom_bar(colour = "blue", fill = "blue", 
     width = 0.7, stat = "identity")
 m
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-12.png) 
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-11.png) 
 
 ```r
 # m <- ggplot(meanStepsDat, aes(x=steps)) + labs(title='Frequency of Mean
@@ -46,44 +49,57 @@ m
 
 medianStepsDat <- aggregate(steps ~ date, completeDat, median)
 medianStepsDat$date <- as.Date(medianStepsDat$date)
-m <- ggplot(medianStepsDat, aes(date, steps)) + theme_bw(base_size = 10) + labs(title = "Median of Total Steps taken per day", 
+m <- ggplot(medianStepsDat, aes(date, steps)) + labs(title = "Median of Total Steps taken per day", 
     x = "Total Steps", y = "Median") + geom_bar(colour = "blue", fill = "blue", 
     width = 0.7, stat = "identity")
 m
 ```
 
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-13.png) 
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-12.png) 
 
 ```r
 # m <- ggplot(medianStepsDat, aes(x=steps)) + labs(title='Frequency of Mean
 # Steps taken per day', x='Median Steps', y='Frequency') +
 # geom_histogram(binwidth=1, colour = 'blue', fill = 'blue') m
+```
 
-### * Assuming single value of mean and median is expected as the result
-### mean(totalStepsDat$steps) median(totalStepsDat$steps)
+
+#### * If single value of mean and median for all the days are expected for the result instead:
+
+```r
+mean(totalStepsDat$steps)
+```
+
+```
+## [1] 10766
+```
+
+```r
+median(totalStepsDat$steps)
+```
+
+```
+## [1] 10765
 ```
 
 
 ## What is the average daily activity pattern?
 
+### 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 ```r
-### Make a time series plot (i.e. type = 'l') of the 5-minute interval
-### (x-axis) and the average number of steps taken, averaged across all days
-### (y-axis)
 averageStepsByIntervalDat <- aggregate(steps ~ interval, completeDat, mean)
-m <- ggplot(averageStepsByIntervalDat, aes(interval, steps)) + geom_line() + 
-    labs(title = "Average number of steps per interval", x = "Interval", y = "Average number of Steps") + 
-    theme_bw(base_size = 10)
+m <- ggplot(averageStepsByIntervalDat, aes(interval, steps)) + geom_line(colour = "blue") + 
+    labs(title = "Average number of steps per interval", x = "Interval", y = "Average number of Steps")
 m
 ```
 
-![plot of chunk unnamed-chunk-2](figure/unnamed-chunk-2.png) 
+![plot of chunk averageStepsByIntervalDat setcache](figure/averageStepsByIntervalDat_setcache.png) 
+
+
+### 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
 ```r
-
-### Which 5-minute interval, on average across all the days in the dataset,
-### contains the maximum number of steps?
 averageStepsByIntervalDat[order(averageStepsByIntervalDat$steps, decreasing = TRUE), 
     ][1, ]
 ```
@@ -95,10 +111,9 @@ averageStepsByIntervalDat[order(averageStepsByIntervalDat$steps, decreasing = TR
 
 
 ## Imputing missing values
+### 1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 
 ```r
-### Calculate and report the total number of missing values in the dataset
-### (i.e. the total number of rows with NAs)
 nrow(dat[!complete.cases(dat), ])
 ```
 
@@ -106,11 +121,10 @@ nrow(dat[!complete.cases(dat), ])
 ## [1] 2304
 ```
 
-```r
 
-### Devise a strategy for filling in all of the missing values in the dataset.
-### The strategy does not need to be sophisticated. For example, you could use
-### the mean/median for that day, or the mean for that 5-minute interval, etc.
+### 2.Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+```r
 fillMissingStepsFunction <- function(x, averageStepsByIntervalDat) {
     steps <- x[1]
     date <- x[2]
@@ -127,15 +141,32 @@ fillMissingStepsFunction <- function(x, averageStepsByIntervalDat) {
             interval, 2]
     }
 }
+```
 
-### Create a new dataset that is equal to the original dataset but with the
-### missing data filled in.
+
+### 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+```r
 filledDat <- dat
 filledDat[is.na(filledDat$steps), 1] <- apply(dat[is.na(filledDat$steps), ], 
     1, fillMissingStepsFunction, averageStepsByIntervalDat)
+head(filledDat)
+```
 
-### Make a histogram of the total number of steps taken each day
+```
+##     steps       date interval
+## 1 1.71698 2012-10-01        0
+## 2 0.33962 2012-10-01        5
+## 3 0.13208 2012-10-01       10
+## 4 0.15094 2012-10-01       15
+## 5 0.07547 2012-10-01       20
+## 6 2.09434 2012-10-01       25
+```
 
+
+### 4a. Make a histogram of the total number of steps taken each day
+
+```r
 # function to plot multiple ggplot on same page, ref:
 # http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
 multiplot <- function(..., plotlist = NULL, file, cols = 1, layout = NULL) {
@@ -173,55 +204,35 @@ multiplot <- function(..., plotlist = NULL, file, cols = 1, layout = NULL) {
 }
 
 totalStepsDat <- aggregate(steps ~ date, completeDat, sum)
-m <- ggplot(totalStepsDat, aes(x = steps)) + theme_bw(base_size = 10) + labs(title = "Frequency of Total Steps taken per day (without missing values)", 
+m <- ggplot(totalStepsDat, aes(x = steps)) + labs(title = "Frequency of Total Steps taken per day (without missing values)", 
     x = "Total Steps", y = "Frequency") + geom_histogram(binwidth = 1000, colour = "blue", 
     fill = "blue")
 
 totalStepsDat2 <- aggregate(steps ~ date, filledDat, sum)
-m2 <- ggplot(totalStepsDat2, aes(x = steps)) + theme_bw(base_size = 10) + labs(title = "Frequency of Total Steps taken per day (with missing values filled with average steps)", 
+m2 <- ggplot(totalStepsDat2, aes(x = steps)) + labs(title = "Frequency of Total Steps taken per day (with missing values filled with average steps)", 
     x = "Total Steps", y = "Frequency") + geom_histogram(binwidth = 1000, colour = "blue", 
     fill = "blue")
 
 multiplot(m, m2, cols = 1)
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-31.png) 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5.png) 
+
+
+### 4b. Calculate and report the mean and median total number of steps taken per day.
 
 ```r
-
-### Calculate and report the mean and median total number of steps taken per
-### day.
 meanStepsDat <- aggregate(steps ~ date, completeDat, mean)
 meanStepsDat$date <- as.Date(meanStepsDat$date)
-m <- ggplot(meanStepsDat, aes(date, steps)) + theme_bw(base_size = 10) + labs(title = "Mean of Total Steps taken per day", 
-    x = "Total Steps", y = "Mean") + geom_bar(colour = "blue", fill = "blue", 
-    width = 0.7, stat = "identity")
-
-meanStepsDat2 <- aggregate(steps ~ date, filledDat, mean)
-meanStepsDat2$date <- as.Date(meanStepsDat2$date)
-m2 <- ggplot(meanStepsDat2, aes(date, steps)) + theme_bw(base_size = 10) + labs(title = "Mean of Total Steps taken per day", 
-    x = "Total Steps", y = "Mean") + geom_bar(colour = "blue", fill = "blue", 
-    width = 0.7, stat = "identity")
 
 medianStepsDat <- aggregate(steps ~ date, completeDat, median)
 medianStepsDat$date <- as.Date(medianStepsDat$date)
-m3 <- ggplot(medianStepsDat, aes(date, steps)) + theme_bw(base_size = 10) + 
-    labs(title = "Median of Total Steps/Day with NA values", x = "Total Steps", 
-        y = "Median") + geom_bar(colour = "blue", fill = "blue", width = 0.7, 
-    stat = "identity")
+
+meanStepsDat2 <- aggregate(steps ~ date, filledDat, mean)
+meanStepsDat2$date <- as.Date(meanStepsDat2$date)
 
 medianStepsDat2 <- aggregate(steps ~ date, filledDat, median)
 medianStepsDat2$date <- as.Date(medianStepsDat2$date)
-m4 <- ggplot(medianStepsDat2, aes(date, steps)) + theme_bw(base_size = 10) + 
-    labs(title = "Median of Total Steps taken per day", x = "Total Steps", y = "Median") + 
-    geom_bar(colour = "blue", fill = "blue", width = 0.7, stat = "identity")
-
-multiplot(m, m2, m3, m4, cols = 2)
-```
-
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-32.png) 
-
-```r
 
 # meanStepsDat2$steps - meanStepsDat$steps
 names(meanStepsDat)[2] = "mean1"
@@ -235,13 +246,25 @@ mergedMeanStepsDat$meanDiff <- mergedMeanStepsDat$mean2 - mergedMeanStepsDat$mea
 # 10) + labs(title='Mean of Total Steps taken per day', x='Date', y='Mean')
 # + geom_line(aes(y=mean1, color = 'NA as 0')) + geom_line(aes(y=mean2,
 # color = 'NA as Average'))
-m <- ggplot(mergedMeanStepsDat, aes(date), na.rm = TRUE) + theme_bw(base_size = 10) + 
-    labs(title = "Mean of Total Steps/Day", x = "Date", y = "Mean with NA values") + 
-    geom_line(aes(y = mean1))
+m <- ggplot(mergedMeanStepsDat, aes(date), na.rm = TRUE) + labs(title = "Mean of Total Steps/Day", 
+    x = "Date", y = "Mean (NA values)") + geom_line(aes(y = mean1), colour = "blue")
 
-m2 <- ggplot(mergedMeanStepsDat, aes(date), na.rm = TRUE) + theme_bw(base_size = 10) + 
-    labs(title = "Mean of Total Steps/Day", x = "Date", y = "Mean (NA values as Average)") + 
-    geom_line(aes(y = mean2))
+m2 <- ggplot(mergedMeanStepsDat, aes(date), na.rm = TRUE) + labs(title = "Mean of Total Steps/Day", 
+    x = "Date", y = "Mean (NA values as Average)") + geom_line(aes(y = mean2), 
+    colour = "blue")
+
+grid.arrange(m, m2, ncol = 1)
+```
+
+```
+## Warning: Removed 2 rows containing missing values (geom_path).
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-61.png) 
+
+```r
+
+# multiplot(m, m2, cols=2)
 
 names(medianStepsDat)[2] = "median1"
 names(medianStepsDat2)[2] = "median2"
@@ -250,11 +273,12 @@ mergedMedianStepsDat <- merge(medianStepsDat, medianStepsDat2, all = TRUE)
 # mergedMedianStepsDat[is.na(mergedMedianStepsDat$median1), 'median1'] <- 0
 mergedMedianStepsDat$medianDiff <- mergedMedianStepsDat$median2 - mergedMedianStepsDat$median1
 
-m3 <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + theme_bw(base_size = 10) + 
-    labs(title = "Median of Total Steps/Day", x = "Date", y = "Median") + geom_line(aes(y = median1))
+m <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + labs(title = "Median of Total Steps/Day", 
+    x = "Date", y = "Median (NA values)") + geom_line(aes(y = median1), colour = "blue")
 
-m4 <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + theme_bw(base_size = 10) + 
-    labs(title = "Median of Total Steps/Day", x = "Date", y = "Median") + geom_line(aes(y = median2))
+m2 <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + labs(title = "Median of Total Steps/Day", 
+    x = "Date", y = "Median (NA values as Average)") + geom_line(aes(y = median2), 
+    colour = "blue")
 
 # m3 <- ggplot(mergedMeanStepsDat, aes(date), na.rm=T) + theme_bw(base_size
 # = 10) + labs(title='Diff of Mean Total Steps taken per day between NA and
@@ -265,27 +289,25 @@ m4 <- ggplot(mergedMedianStepsDat, aes(date), na.rm = TRUE) + theme_bw(base_size
 # per day between NA and filled values', x='Date', y='Median Diff') +
 # geom_line(aes(y = medianDiff))
 
-multiplot(m, m2, m3, m4, cols = 2)
+grid.arrange(m, m2, ncol = 1)
 ```
 
 ```
 ## Warning: Removed 2 rows containing missing values (geom_path).
-## Warning: Removed 2 rows containing missing values (geom_path).
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-33.png) 
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-62.png) 
 
 
-### Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+### 4c. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 There is impact on both mean and median results. It has minor impact on mean results as it fills in the average of all available days for days that only NA values are available, which potentially allows those days to be included in other calculations, but it greatly affects the median results as it's fills with average value for a particular day, which median value will be calculated from the average value, instead of including multiple 0, similar to other steps/days as provided by the original dataset. (Median for non-NA days are typically 0 due to multiple 0 steps entries, whereas NA days's steps are filled using the average which is not 0 and typically > 30 steps per day)
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
+### 1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
 ```r
-### Create a new factor variable in the dataset with two levels -- 'weekday'
-### and 'weekend' indicating whether a given date is a weekday or weekend day.
 weekDayEndDat <- dat
 weekDayEndDat$weekDayEnd <- as.POSIXlt(weekDayEndDat$date)$wday
 
@@ -299,19 +321,18 @@ assignWeekDayEnd <- function(x) {
     weekDayEndValue
 }
 weekDayEndDat$weekDayEnd <- apply(weekDayEndDat, 1, assignWeekDayEnd)
+```
 
-### Make a panel plot containing a time series plot (i.e. type = 'l') of the
-### 5-minute interval (x-axis) and the average number of steps taken, averaged
-### across all weekday days or weekend days (y-axis).
 
-# averageStepsByWeekDayEndDayDat <- aggregate(steps ~ interval,
-# weekDayEndDat, mean)
+### 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+```r
 m <- ggplot(weekDayEndDat[complete.cases(weekDayEndDat), ], aes(interval, steps), 
     group = weekDayEnd, na.rm = TRUE) + labs(title = "Average number of steps per interval", 
-    x = "Interval", y = "Average number of Steps") + theme_bw(base_size = 10) + 
-    geom_line() + facet_grid(weekDayEnd ~ .)
+    x = "Interval", y = "Average number of Steps") + geom_line(colour = "blue") + 
+    facet_grid(weekDayEnd ~ .)
 m
 ```
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4.png) 
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
 
